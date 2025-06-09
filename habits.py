@@ -61,7 +61,9 @@ class HabitTrackerApp:
                         variable=var,
                         command=self.save_data,
                         padx=20,
-                        pady=10
+                        pady=10,
+                        borderwidth=4,
+                        relief="ridge"
                     )
                     chk.grid(row=row, column=col, padx=20, sticky="w")
                     self.check_vars[habit][sub_item] = var
@@ -119,7 +121,7 @@ class HabitTrackerApp:
             padx=30,  # Inner horizontal padding (inside label)
             pady=10,  # Inner vertical padding (inside label)
             borderwidth=4,
-            relief="ridge"
+            relief="raised"
         )
         self.date_label.pack(side="right", padx=20, pady=10)
 
