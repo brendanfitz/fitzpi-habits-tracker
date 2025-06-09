@@ -52,11 +52,11 @@ class HabitTrackerApp:
                 lbl.grid(row=row, column=0, padx=30, pady=20, sticky="w")
 
                 self.check_vars[habit] = {}
-                for col, time in enumerate(sub_items, start=1):
-                    var = tk.BooleanVar(value=self.data.get("habits", {}).get(habit, {}).get(time, False))
+                for col, sub_item in enumerate(sub_items, start=1):
+                    var = tk.BooleanVar(value=self.data.get("habits", {}).get(habit, {}).get(sub_item, False))
                     chk = tk.Checkbutton(
                         self.frame,
-                        text=time,
+                        text=sub_item,
                         font=("Arial", 18),
                         variable=var,
                         command=self.save_data,
@@ -64,7 +64,14 @@ class HabitTrackerApp:
                         pady=10
                     )
                     chk.grid(row=row, column=col, padx=20, sticky="w")
-                    self.check_vars[habit][time] = var
+                    self.check_vars[habit][sub_item] = var
+
+                    def make_callback(h=habit, i=sub_item, v=var, c=chk):
+                        return lambda: self.update_checkbutton_color(h, i, v, c)
+
+                    chk.config(command=make_callback())
+                    self.update_checkbutton_color(habit, sub_item, var, chk)
+
                 row += 1
             else:
                 var = tk.BooleanVar(value=self.data.get("habits", {}).get(habit, False))
@@ -127,7 +134,9 @@ class HabitTrackerApp:
             with open(DATA_FILE, "r") as f:
                 self.data = json.load(f)
         else:
-            self.data = {"last_date": str(date.today()), "habits": {}}
+            self.data = {"last_date": str(date.today()),
+                         "habits": {habit: {sub_item: False for sub_item in sub_items}
+                                    for habit, sub_items in HABITS.items()}}
 
     def save_data(self):
         habits_state = {}
@@ -163,6 +172,12 @@ class HabitTrackerApp:
 
     def on_canvas_configure(self, event):
         self.canvas.itemconfig(self.window_id, width=event.width, height=event.height)
+
+    def update_checkbutton_color(self, habit, sub_item, var, chk):
+        if var.get():
+            chk.config(bg="#b9f6ca")  # Light green
+        else:
+            chk.config(bg="#ff8a80")  # Light red
 
 if __name__ == "__main__":
     root = tk.Tk()
