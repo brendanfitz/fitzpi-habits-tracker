@@ -19,14 +19,22 @@ class HabitTrackerApp:
         master.geometry("1024x600") # Fit to the touchscreen
         # master.attributes('-fullscreen', True)  # Optional fullscreen
 
-        self.canvas = tk.Canvas(master)
-        self.frame = tk.Frame(self.canvas)
-        self.scrollbar = tk.Scrollbar(master, orient="vertical", command=self.canvas.yview)
+        self.main_frame = tk.Frame(master)
+        self.main_frame.pack(side="top", fill="both", expand=True)
+
+        self.canvas = tk.Canvas(self.main_frame)
+        self.frame = tk.Frame(self.canvas, borderwidth=4, relief="ridge")
+        self.scrollbar = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
 
         self.canvas.configure(yscrollcommand=self.scrollbar.set)
-        self.scrollbar.pack(side="right", fill="y")
         self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.create_window((0, 0), window=self.frame, anchor="nw")
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.bottom_frame = tk.Frame(master)
+        self.bottom_frame.pack(side="bottom", fill="x")
+
+        self.window_id = self.canvas.create_window((0, 0), window=self.frame, anchor="nw")
+        self.canvas.bind("<Configure>", self.on_canvas_configure)
 
         self.frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
 
@@ -73,25 +81,40 @@ class HabitTrackerApp:
                 self.check_vars[habit] = var
                 row += 1
 
+        # Evenly distribute rows
+        for i in range(row):
+            self.frame.grid_rowconfigure(i, weight=1)
+        self.frame.grid_columnconfigure(0, weight=1)
+
         # Reset button
         self.reset_button = tk.Button(
-            self.frame,
+            self.bottom_frame,
             text="Reset Today",
-            font=("Arial", 22),
+            font=("Arial", 28, "bold"),
             padx=30,
             pady=15,
-            command=self.manual_reset
+            command=self.manual_reset,
+            bg = "#1976D2",  # Background color
+            fg = "white",  # Text color
+            activebackground = "#1565C0",  # Color when pressed
+            activeforeground = "white"
         )
-        self.reset_button.grid(row=row, column=0, padx=50, pady=30, sticky="w")
+        self.reset_button.pack(side="left", padx=20, pady=10)
 
         # Date label
         self.date_label = tk.Label(
-            self.frame,
+            self.bottom_frame,
             text=self.get_formatted_date(),
-            font=("Arial", 22),
-            anchor="e"
+            font=("Arial", 28, "bold"),
+            anchor="e",
+            bg="#1976D2",      # Background color
+            fg="white",         # Text color
+            padx=30,  # Inner horizontal padding (inside label)
+            pady=10,  # Inner vertical padding (inside label)
+            borderwidth=4,
+            relief="ridge"
         )
-        self.date_label.grid(row=row, column=1, columnspan=3, sticky="e", padx=20)
+        self.date_label.pack(side="right", padx=20, pady=10)
 
     def get_formatted_date(self):
         return datetime.now().strftime("%b %d, %y")  # e.g., Jun 08, 25
@@ -137,6 +160,9 @@ class HabitTrackerApp:
                     sub.set(False)
             else:
                 var.set(False)
+
+    def on_canvas_configure(self, event):
+        self.canvas.itemconfig(self.window_id, width=event.width, height=event.height)
 
 if __name__ == "__main__":
     root = tk.Tk()
