@@ -1,5 +1,5 @@
 import tkinter as tk
-from datetime import date
+from datetime import date, datetime
 import json
 import os
 
@@ -8,16 +8,16 @@ DATA_FILE = "habit_data.json"
 HABITS = {
     "Vitamins": ["Morning", "Afternoon", "Night"],
     "Fiber": ["1", "2", "3"],
-    "Stomach Breathing": ["Morning", "Afternoon", "Night"],
-    "Hip Stretches": ["Gym", "Night"],
-    "Dead Hangs": ["Morning", "Night"],
+    "Breathing": ["Morning"],
+    "Stretches": ["Dead Hangs", "Hips", "Core"],
 }
 
 class HabitTrackerApp:
     def __init__(self, master):
         self.master = master
         master.title("Daily Habit Tracker")
-        master.geometry("1024x600")  # Fit to your touchscreen
+        master.geometry("1024x600") # Fit to the touchscreen
+        # master.attributes('-fullscreen', True)  # Optional fullscreen
 
         self.canvas = tk.Canvas(master)
         self.frame = tk.Frame(self.canvas)
@@ -36,13 +36,13 @@ class HabitTrackerApp:
 
     def create_widgets(self):
         self.check_vars = {}
-    
+
         row = 0
         for habit, sub_items in HABITS.items():
             if sub_items:
                 lbl = tk.Label(self.frame, text=habit, font=("Arial", 22, "bold"), anchor="w")
                 lbl.grid(row=row, column=0, padx=30, pady=20, sticky="w")
-    
+
                 self.check_vars[habit] = {}
                 for col, time in enumerate(sub_items, start=1):
                     var = tk.BooleanVar(value=self.data.get("habits", {}).get(habit, {}).get(time, False))
@@ -72,7 +72,8 @@ class HabitTrackerApp:
                 chk.grid(row=row, column=0, columnspan=4, padx=30, pady=20, sticky="w")
                 self.check_vars[habit] = var
                 row += 1
-    
+
+        # Reset button
         self.reset_button = tk.Button(
             self.frame,
             text="Reset Today",
@@ -81,8 +82,22 @@ class HabitTrackerApp:
             pady=15,
             command=self.manual_reset
         )
-        self.reset_button.grid(row=row, column=0, columnspan=4, pady=30)
+        self.reset_button.grid(row=row, column=0, padx=50, pady=30, sticky="w")
 
+        # Date label
+        self.date_label = tk.Label(
+            self.frame,
+            text=self.get_formatted_date(),
+            font=("Arial", 22),
+            anchor="e"
+        )
+        self.date_label.grid(row=row, column=1, columnspan=3, sticky="e", padx=20)
+
+    def get_formatted_date(self):
+        return datetime.now().strftime("%b %d, %y")  # e.g., Jun 08, 25
+
+    def update_date_label(self):
+        self.date_label.config(text=self.get_formatted_date())
 
     def load_data(self):
         if os.path.exists(DATA_FILE):
@@ -108,10 +123,12 @@ class HabitTrackerApp:
         if self.data["last_date"] != str(date.today()):
             self.reset_habits()
             self.save_data()
+            self.update_date_label()
 
     def manual_reset(self):
         self.reset_habits()
         self.save_data()
+        self.update_date_label()
 
     def reset_habits(self):
         for habit, var in self.check_vars.items():
