@@ -8,7 +8,7 @@ DATA_FILE = "habit_data.json"
 HABITS = {
     "Vitamins": ["Morning", "Afternoon", "Night"],
     "Fiber": ["1", "2", "3"],
-    "Breathing": ["Morning"],
+    "Breathing": ["Morning", "Night"],
     "Stretches": ["Dead Hangs", "Hips", "Core"],
 }
 
@@ -184,6 +184,7 @@ class HabitTrackerApp:
                     sub.set(False)
             else:
                 var.set(False)
+        self.update_all_checkbutton_colors()
 
     def on_canvas_configure(self, event):
         self.canvas.itemconfig(self.window_id, width=event.width, height=event.height)
@@ -194,6 +195,19 @@ class HabitTrackerApp:
             chk.config(bg="#b9f6ca")  # Light green
         else:
             chk.config(bg="#ff8a80")  # Light red
+
+    def update_all_checkbutton_colors(self):
+        for habit, var in self.check_vars.items():
+            if isinstance(var, dict):
+                for sub_item, v in var.items():
+                    # Find the Checkbutton widget for this var
+                    for widget in self.frame.grid_slaves():
+                        if isinstance(widget, tk.Checkbutton) and widget.cget("text") == sub_item:
+                            self.update_checkbutton_color(habit, sub_item, v, widget)
+            else:
+                for widget in self.frame.grid_slaves():
+                    if isinstance(widget, tk.Checkbutton) and widget.cget("text") == habit:
+                        self.update_checkbutton_color(habit, None, var, widget)
 
 if __name__ == "__main__":
     root = tk.Tk()
