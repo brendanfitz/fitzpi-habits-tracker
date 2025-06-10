@@ -14,6 +14,9 @@ HABITS = {
 
 class HabitTrackerApp:
     def __init__(self, master):
+        self.check_vars, self.data = {}, {}
+        self.date_label, self.reset_button = None, None
+
         self.master = master
         master.title("Daily Habit Tracker")
         master.geometry("1024x600") # Fit to the touchscreen
@@ -68,8 +71,8 @@ class HabitTrackerApp:
                     chk.grid(row=row, column=col, padx=20, sticky="w")
                     self.check_vars[habit][sub_item] = var
 
-                    def make_callback(h=habit, i=sub_item, v=var, c=chk):
-                        return lambda: self.update_checkbutton_color(h, i, v, c)
+                    def make_callback(h=habit, si=sub_item, v=var, c=chk):
+                        return lambda: self.update_checkbutton_color(h, si, v, c)
 
                     chk.config(command=make_callback())
                     self.update_checkbutton_color(habit, sub_item, var, chk)
@@ -125,7 +128,8 @@ class HabitTrackerApp:
         )
         self.date_label.pack(side="right", padx=20, pady=10)
 
-    def get_formatted_date(self):
+    @staticmethod
+    def get_formatted_date():
         return datetime.now().strftime("%b %d, %y")  # e.g., Jun 08, 25
 
     def update_date_label(self):
@@ -184,7 +188,8 @@ class HabitTrackerApp:
     def on_canvas_configure(self, event):
         self.canvas.itemconfig(self.window_id, width=event.width, height=event.height)
 
-    def update_checkbutton_color(self, habit, sub_item, var, chk):
+    @staticmethod
+    def update_checkbutton_color(habit, sub_item, var, chk):
         if var.get():
             chk.config(bg="#b9f6ca")  # Light green
         else:
