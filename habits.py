@@ -98,7 +98,7 @@ class HabitTrackerApp:
         # Reset button
         self.reset_button = tk.Button(
             self.bottom_frame,
-            text="Reset Today",
+            text="Reset",
             font=("Arial", 28, "bold"),
             padx=30,
             pady=15,
@@ -132,26 +132,35 @@ class HabitTrackerApp:
         self.date_label.config(text=self.get_formatted_date())
 
     def load_data(self):
+        self.data = {"last_date": str(date.today()),
+                     "habits": {habit: {sub_item: False for sub_item in sub_items}
+                                for habit, sub_items in HABITS.items()}}
         if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, "r") as f:
-                self.data = json.load(f)
-        else:
-            self.data = {"last_date": str(date.today()),
-                         "habits": {habit: {sub_item: False for sub_item in sub_items}
-                                    for habit, sub_items in HABITS.items()}}
+            try:
+                with open(DATA_FILE, "r") as f:
+                    # Read last record from file (newline-delimited JSON)
+                    lines = f.readlines()
+                    if lines:
+                        self.data = json.loads(lines[-1])
+            except Exception:
+                pass
 
     def save_data(self):
         habits_state = {}
         for habit, var in self.check_vars.items():
-            if isinstance(var, dict):  # Grouped checkboxes
+            if isinstance(var, dict):
                 habits_state[habit] = {sub: v.get() for sub, v in var.items()}
             else:
                 habits_state[habit] = var.get()
 
-        self.data["habits"] = habits_state
-        self.data["last_date"] = str(date.today())
-        with open(DATA_FILE, "w") as f:
-            json.dump(self.data, f)
+        record = {
+            "habits": habits_state,
+            "last_date": str(date.today()),
+            "timestamp": datetime.now().isoformat()
+        }
+        with open(DATA_FILE, "a") as f:
+            f.write(json.dumps(record) + "\n")
+        self.data = record  # Update current state
 
     def check_date_and_reset(self):
         if self.data["last_date"] != str(date.today()):
