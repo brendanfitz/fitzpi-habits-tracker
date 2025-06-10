@@ -11,7 +11,7 @@ To run your Tkinter app on a touchscreen, the best approach is to create a deskt
 [Desktop Entry]
 Type=Application
 Name=Habit Tracker
-Exec=python3 /path/to/habits.py --fullscreen
+Exec=python3 /path/to/habits.py
 Icon=utilities-terminal
 Terminal=false
 ```

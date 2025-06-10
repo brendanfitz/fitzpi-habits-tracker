@@ -2,15 +2,28 @@ import tkinter as tk
 from datetime import date, datetime
 import json
 import os
+import csv
+from dotenv import load_dotenv
 
+load_dotenv()  # Loads variables from .env
+
+CSV_PATH = os.getenv("HABITS_CSV_PATH")
 DATA_FILE = "habit_data.json"
 
-HABITS = {
-    "Vitamins": ["Morning", "Afternoon", "Night"],
-    "Fiber": ["1", "2", "3"],
-    "Breathing": ["Morning", "Night"],
-    "Stretches": ["Dead Hangs", "Hips", "Core"],
-}
+def load_habits_from_csv(csv_path):
+    habits = {}
+    with open(csv_path, newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            habit = row['Habits'].strip()
+            subitem = row['SubItems'].strip()
+            if habit not in habits:
+                habits[habit] = []
+            if subitem:
+                habits[habit].append(subitem)
+    return habits
+
+HABITS = load_habits_from_csv(CSV_PATH)
 
 class HabitTrackerApp:
     def __init__(self, master):
