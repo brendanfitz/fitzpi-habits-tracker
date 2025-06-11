@@ -1,5 +1,6 @@
 import tkinter as tk
 from datetime import date, datetime
+import calendar
 import json
 import os
 import csv
@@ -17,11 +18,19 @@ def load_habits_from_csv(csv_path):
         for row in reader:
             habit = row['Habits'].strip()
             subitem = row['SubItems'].strip()
+            days = [d.strip() for d in row.get('Days', '').split('-') if d.strip()]
             if habit not in habits:
                 habits[habit] = []
             if subitem:
-                habits[habit].append(subitem)
+                habits[habit].append({'name': subitem, 'days': days})
     return habits
+
+def is_today_in_days(days):
+    if not days:
+        return True  # Show every day if no days specified
+    today = calendar.day_abbr[date.today().weekday()]
+    return today in days
+
 
 HABITS = load_habits_from_csv(CSV_PATH)
 
@@ -68,7 +77,12 @@ class HabitTrackerApp:
                 lbl.grid(row=row, column=0, padx=30, pady=20, sticky="w")
 
                 self.check_vars[habit] = {}
-                for col, sub_item in enumerate(sub_items, start=1):
+                for col, sub_item_dict in enumerate(sub_items, start=1):
+                    sub_item = sub_item_dict['name']
+                    days = sub_item_dict.get('days', [])
+                    if not is_today_in_days(days):
+                        continue
+
                     var = tk.BooleanVar(value=self.data.get("habits", {}).get(habit, {}).get(sub_item, False))
                     chk = tk.Checkbutton(
                         self.frame,
@@ -150,7 +164,7 @@ class HabitTrackerApp:
 
     def load_data(self):
         self.data = {"last_date": str(date.today()),
-                     "habits": {habit: {sub_item: False for sub_item in sub_items}
+                     "habits": {habit: {sub_item['name']: False for sub_item in sub_items}
                                 for habit, sub_items in HABITS.items()}}
         if os.path.exists(DATA_FILE):
             try:
