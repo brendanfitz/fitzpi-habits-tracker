@@ -205,6 +205,8 @@ class HabitTrackerApp:
         self.update_date_label()
         for widget in self.frame.winfo_children():
             widget.destroy()
+        for widget in self.bottom_frame.winfo_children():
+            widget.destroy()
         self.create_widgets()
 
     def reset_habits(self):
