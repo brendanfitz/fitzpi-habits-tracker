@@ -89,7 +89,6 @@ class HabitTrackerApp:
                         text=sub_item,
                         font=("Arial", 18),
                         variable=var,
-                        command=self.save_data,
                         padx=20,
                         pady=10,
                         borderwidth=4,
@@ -99,6 +98,7 @@ class HabitTrackerApp:
                     self.check_vars[habit][sub_item] = var
 
                     def make_callback(h=habit, si=sub_item, v=var, c=chk):
+                        self.save_data()
                         return lambda: self.update_checkbutton_color(h, si, v, c)
 
                     chk.config(command=make_callback())
