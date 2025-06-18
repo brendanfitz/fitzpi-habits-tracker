@@ -215,7 +215,7 @@ class HabitTrackerApp:
         else:
             chk.config(bg="#ff8a80", activebackground='#ff8a80')  # Light red
 
-    def update_checkbutton_color_and_save_data(self, args):
+    def update_checkbutton_color_and_save_data(self, *args):
         self.update_checkbutton_color(*args)
         self.save_data()
 
