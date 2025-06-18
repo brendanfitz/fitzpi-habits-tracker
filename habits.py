@@ -98,8 +98,7 @@ class HabitTrackerApp:
                     self.check_vars[habit][sub_item] = var
 
                     def make_callback(h=habit, si=sub_item, v=var, c=chk):
-                        self.save_data()
-                        return lambda: self.update_checkbutton_color(h, si, v, c)
+                        return lambda: self.update_checkbutton_color_and_save_data(h, si, v, c)
 
                     chk.config(command=make_callback())
                     self.update_checkbutton_color(habit, sub_item, var, chk)
@@ -215,6 +214,10 @@ class HabitTrackerApp:
             chk.config(bg="#b9f6ca", activebackground='#b9f6ca')  # Light green
         else:
             chk.config(bg="#ff8a80", activebackground='#ff8a80')  # Light red
+
+    def update_checkbutton_color_and_save_data(self, args):
+        self.update_checkbutton_color(*args)
+        self.save_data()
 
     def update_all_checkbutton_colors(self):
         for habit, var in self.check_vars.items():
