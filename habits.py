@@ -106,19 +106,7 @@ class HabitTrackerApp:
 
                 row += 1
             else:
-                var = tk.BooleanVar(value=self.data.get("habits", {}).get(habit, False))
-                chk = tk.Checkbutton(
-                    self.frame,
-                    text=habit,
-                    font=("Arial", 22),
-                    variable=var,
-                    command=self.save_data,
-                    padx=20,
-                    pady=15
-                )
-                chk.grid(row=row, column=0, columnspan=4, padx=30, pady=20, sticky="w")
-                self.check_vars[habit] = var
-                row += 1
+                raise ValueError('Habits without Sub Items Not Configured')
 
         # Evenly distribute rows
         for i in range(row):
@@ -224,9 +212,9 @@ class HabitTrackerApp:
     @staticmethod
     def update_checkbutton_color(habit, sub_item, var, chk):
         if var.get():
-            chk.config(bg="#b9f6ca")  # Light green
+            chk.config(bg="#b9f6ca", activebackground='#b9f6ca')  # Light green
         else:
-            chk.config(bg="#ff8a80")  # Light red
+            chk.config(bg="#ff8a80", activebackground='#ff8a80')  # Light red
 
     def update_all_checkbutton_colors(self):
         for habit, var in self.check_vars.items():
