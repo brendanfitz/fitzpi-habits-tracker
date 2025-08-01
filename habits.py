@@ -9,7 +9,23 @@ from dotenv import load_dotenv
 load_dotenv()  # Loads variables from .env
 
 CSV_PATH = os.getenv("HABITS_CSV_PATH")
+
+if CSV_PATH is None:
+    raise ValueError('Please enter csv path in .env under HABITS_CSV_PATH')
+
 DATA_FILE = "habit_data.json"
+
+class UIParams:
+    LABEL_FONT = ("Arial", 22, "bold")
+    CHECKBOX_FONT = ("Arial", 18)
+
+    LABEL_PADX = 30
+    LABEL_PADY = 20
+
+    CHECKBOX_PADX = 20
+    CHECKBOX_PADY = 10
+
+    CHECKGRID_PADX = 20
 
 def load_habits_from_csv(csv_path):
     habits = {}
@@ -49,11 +65,8 @@ class HabitTrackerApp:
 
         self.canvas = tk.Canvas(self.main_frame)
         self.frame = tk.Frame(self.canvas, borderwidth=4, relief="ridge")
-        self.scrollbar = tk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
 
-        self.canvas.configure(yscrollcommand=self.scrollbar.set)
         self.canvas.pack(side="left", fill="both", expand=True)
-        self.scrollbar.pack(side="right", fill="y")
 
         self.bottom_frame = tk.Frame(master)
         self.bottom_frame.pack(side="bottom", fill="x")
@@ -73,8 +86,8 @@ class HabitTrackerApp:
         row = 0
         for habit, sub_items in HABITS.items():
             if sub_items:
-                lbl = tk.Label(self.frame, text=habit, font=("Arial", 22, "bold"), anchor="w")
-                lbl.grid(row=row, column=0, padx=30, pady=20, sticky="w")
+                lbl = tk.Label(self.frame, text=habit, font=UIParams.LABEL_FONT, anchor="w")
+                lbl.grid(row=row, column=0, padx=UIParams.LABEL_PADX, pady=UIParams.LABEL_PADY, sticky="w")
 
                 self.check_vars[habit] = {}
                 for col, sub_item_dict in enumerate(sub_items, start=1):
@@ -87,14 +100,14 @@ class HabitTrackerApp:
                     chk = tk.Checkbutton(
                         self.frame,
                         text=sub_item,
-                        font=("Arial", 18),
+                        font=UIParams.CHECKBOX_FONT,
                         variable=var,
-                        padx=20,
-                        pady=10,
+                        padx=UIParams.CHECKBOX_PADX,
+                        pady=UIParams.CHECKBOX_PADY,
                         borderwidth=4,
                         relief="ridge"
                     )
-                    chk.grid(row=row, column=col, padx=20, sticky="w")
+                    chk.grid(row=row, column=col, padx=UIParams.CHECKGRID_PADX, sticky="w")
                     self.check_vars[habit][sub_item] = var
 
                     def make_callback(h=habit, si=sub_item, v=var, c=chk):
@@ -110,7 +123,7 @@ class HabitTrackerApp:
         # Evenly distribute rows
         for i in range(row):
             self.frame.grid_rowconfigure(i, weight=1)
-        self.frame.grid_columnconfigure(0, weight=1)
+        self.frame.grid_columnconfigure(0, weight=0)
 
         # Reset button
         self.reset_button = tk.Button(
